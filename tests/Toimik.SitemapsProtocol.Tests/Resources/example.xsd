@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.example.com/schemas/0.9"
+            xmlns="http://www.example.com/schemas/0.9"
+            elementFormDefault="qualified">
+  <xsd:element name="title" type="xsd:string">
+  </xsd:element>
+</xsd:schema>

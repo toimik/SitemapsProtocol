@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>Toimik.SitemapsProtocol</AssemblyName>
+    <PackageVersion>0.1.1</PackageVersion>
+    <Authors>Nurhafiz</Authors>
+    <Version>0.1.1</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Company>Toimik</Company>
+    <Description>
+      Parsers for Sitemaps protocol (aka Sitemap / Sitemap Index).
+
+      Visit Project Site for documentation.
+    </Description>
+    <Copyright>nurhafiz@hotmail.sg</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/toimik/SitemapsProtocol</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/toimik/SitemapsProtocol.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>
+      site-map sitemap sitemaps sitemap.xml xml-sitemap
+    </PackageTags>
+    <Product>SitemapsProtocol</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\siteindex.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\sitemap.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
