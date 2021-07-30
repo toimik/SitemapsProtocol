@@ -25,12 +25,12 @@ This example shows how to use the `Sitemap` class.
 Usage of the `SitemapIndex` class is similar.
 
 ```c# 
-// The prefix that every sitemap entry's location must start with
+// The location that every sitemap entry's location must start with
 // in order for that entry to be considered as valid
-var urlPrefix = "http://www.example.com";
+var location = "http://www.example.com";
 
 // Create an instance of the Sitemap class
-var sitemap = new Sitemap(urlPrefix);
+var sitemap = new Sitemap(location);
 
 // Load the data from a Stream
 using var stream = File.OpenRead(@"sitemap.xml");

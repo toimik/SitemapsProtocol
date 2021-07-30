@@ -40,9 +40,9 @@ namespace Toimik.SitemapsProtocol
             SchemaSet = Utils.CreateSchemaSet($"{typeof(SitemapIndex).Namespace}.Resources.siteindex.xsd");
         }
 
-        public SitemapIndex(string urlPrefix, int entryMaxCount = DefaultEntryMaxCount)
+        public SitemapIndex(string location, int entryMaxCount = DefaultEntryMaxCount)
         {
-            UrlPrefix = Utils.NormalizeUrlPrefix(urlPrefix) ?? throw new ArgumentException($"{nameof(urlPrefix)} is not in a valid format.");
+            Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
             EntryMaxCount = entryMaxCount;
         }
 
@@ -52,7 +52,7 @@ namespace Toimik.SitemapsProtocol
 
         public int EntryMaxCount { get; }
 
-        public string UrlPrefix { get; }
+        public string Location { get; }
 
         public bool AddEntry(SitemapIndexEntry entry)
         {
@@ -130,7 +130,7 @@ namespace Toimik.SitemapsProtocol
                 document,
                 schemaSet,
                 "Sitemap Index");
-            var tempUrlPrefix = Utils.AddDefaultPortIfMissing(UrlPrefix);
+            var tempLocation = Utils.AddDefaultPortIfMissing(Location);
             foreach (var descendant in document.Root.Descendants())
             {
                 var entry = new SitemapIndexEntry();
@@ -144,10 +144,10 @@ namespace Toimik.SitemapsProtocol
                             break;
 
                         case "loc":
-                            var location = Utils.NormalizeUrlPrefix(element.Value.Trim());
-                            var urlPrefixWithPort = Utils.AddDefaultPortIfMissing(location);
-                            if (urlPrefixWithPort.Equals(tempUrlPrefix, StringComparison.OrdinalIgnoreCase)
-                                || !urlPrefixWithPort.StartsWith(tempUrlPrefix, StringComparison.OrdinalIgnoreCase))
+                            var location = Utils.NormalizeLocation(element.Value.Trim());
+                            var locationWithPort = Utils.AddDefaultPortIfMissing(location);
+                            if (locationWithPort.Equals(tempLocation, StringComparison.OrdinalIgnoreCase)
+                                || !locationWithPort.StartsWith(tempLocation, StringComparison.OrdinalIgnoreCase))
                             {
                                 break;
                             }

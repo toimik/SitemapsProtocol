@@ -75,19 +75,19 @@ namespace Toimik.SitemapsProtocol
             return schemaSet;
         }
 
-        public static string NormalizeUrlPrefix(string urlPrefix)
+        public static string NormalizeLocation(string location)
         {
             string temp = null;
             try
             {
-                var url = new Uri(urlPrefix);
+                var url = new Uri(location);
                 if (url.UserInfo != null)
                 {
                     // The standard has deprecate username:password in URL
-                    urlPrefix = $"{url.Scheme}://{url.Authority}{url.PathAndQuery}";
+                    location = $"{url.Scheme}://{url.Authority}{url.PathAndQuery}";
                 }
 
-                temp = urlPrefix;
+                temp = location;
             }
             catch (UriFormatException)
             {

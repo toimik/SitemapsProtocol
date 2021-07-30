@@ -6,13 +6,13 @@
 
     public class SitemapTest
     {
-        const string UrlPrefix = "http://www.example.com";
+        const string Location = "http://www.example.com";
 
         [Fact]
         public void AllFieldsSpecified()
         {
-            var sitemap = new Sitemap(UrlPrefix);
-            var expectedLocation = $"{UrlPrefix}/sitemap.xml";
+            var sitemap = new Sitemap(Location);
+            var expectedLocation = $"{Location}/sitemap.xml";
             var expectedLastModified = "2005-01-01";
             const ChangeFrequency ExpectedChangeFrequency = ChangeFrequency.Monthly;
             const double ExpectedPriority = 0.8;
@@ -40,7 +40,7 @@
         [Fact]
         public void CustomSchema()
         {
-            var extendedSitemap = new ExtendedSitemap(UrlPrefix);
+            var extendedSitemap = new ExtendedSitemap(Location);
             const string ExpectedValue = "foobar";
             var data = @$"
                 <?xml version='1.0' encoding='UTF-8'?>
@@ -48,7 +48,7 @@
                     xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9""
                     xmlns:example=""http://www.example.com/schemas/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                         <example:title>{ExpectedValue}</example:title>
                     </url>
                 </urlset>".TrimStart();
@@ -64,18 +64,18 @@
         [Fact]
         public void DuplicateLocation()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                         <priority>0</priority>
                     </url>
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                         <priority>0</priority>
                     </url>
                 </urlset>".TrimStart();
@@ -90,7 +90,7 @@
         [InlineData(" ")]
         public void Empty(string data)
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
 
             Assert.Throws<ArgumentException>(() => sitemap.Load(data));
         }
@@ -98,17 +98,17 @@
         [Fact]
         public void EntryMaxCount()
         {
-            var sitemap = new Sitemap(UrlPrefix, entryMaxCount: 2);
+            var sitemap = new Sitemap(Location, entryMaxCount: 2);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                     <url>
-                        <loc>{UrlPrefix}/sitemap2.xml</loc>
+                        <loc>{Location}/sitemap2.xml</loc>
                     </url>
                     <url>
-                        <loc>{UrlPrefix}/sitemap3.xml</loc>
+                        <loc>{Location}/sitemap3.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -120,12 +120,12 @@
         [Fact]
         public void InvalidChangeFrequency()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
                         <changefreq>invalid</changefreq>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -141,12 +141,12 @@
         [Fact]
         public void InvalidLastModified()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
                         <lastmod>invalid</lastmod>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -156,7 +156,7 @@
         [Fact]
         public void InvalidLocation()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
@@ -170,12 +170,12 @@
         [Fact]
         public void InvalidPriority()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
                         <priority>invalid</priority>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -185,11 +185,11 @@
         [Fact]
         public void InvalidRootTag()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <invalid xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </invalid>".TrimStart();
 
@@ -199,11 +199,11 @@
         [Fact]
         public void InvalidUrlTag()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <invalid>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </invalid>
                 </urlset>".TrimStart();
 
@@ -213,19 +213,19 @@
         [Fact]
         public void LoadStartsAfresh()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <?xml version=""1.0"" encoding=""UTF-8""?>
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                     <url>
-                        <loc>{UrlPrefix}/sitemap2.xml</loc>
+                        <loc>{Location}/sitemap2.xml</loc>
                     </url>
                 </urlset>".TrimStart();
             sitemap.Load(data);
-            var url = $"{UrlPrefix}/sitemap3.xml";
+            var url = $"{Location}/sitemap3.xml";
             data = @$"
                 <?xml version=""1.0"" encoding=""UTF-8""?>
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
@@ -254,7 +254,7 @@
         [InlineData("http://username:password@www.example.com/sitemap.xml", true)]
         public void LocationValidity(string location, bool isEqual)
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
@@ -270,7 +270,7 @@
         [Fact]
         public void MissingAllFields()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
             Assert.Throws<ArgumentException>(() => sitemap.Load(data));
@@ -279,11 +279,11 @@
         [Fact]
         public void MissingDeclaration()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -295,11 +295,11 @@
         [Fact]
         public void MissingNamespace()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset>
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -309,16 +309,16 @@
         [Fact]
         public void MultipleInstantiations()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <?xml version=""1.0"" encoding=""UTF-8""?>
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
             sitemap.Load(data);
-            sitemap = new Sitemap(UrlPrefix);
+            sitemap = new Sitemap(Location);
             sitemap.Load(data);
 
             Assert.Equal(1, sitemap.EntryCount);
@@ -327,12 +327,12 @@
         [Fact]
         public void NonUtf8Encoding()
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <?xml version=""1.0"" encoding=""UTF-16""?>
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{UrlPrefix}/sitemap.xml</loc>
+                        <loc>{Location}/sitemap.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -345,7 +345,7 @@
         [InlineData("https://www.example.com:8080")]
         public void SupersetLocation(string location)
         {
-            var sitemap = new Sitemap(UrlPrefix);
+            var sitemap = new Sitemap(Location);
             var data = @$"
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
