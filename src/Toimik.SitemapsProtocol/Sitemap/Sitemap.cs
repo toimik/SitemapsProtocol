@@ -18,7 +18,6 @@ namespace Toimik.SitemapsProtocol
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -129,7 +128,39 @@ namespace Toimik.SitemapsProtocol
             return new SitemapEntry();
         }
 
-        protected virtual async Task DoLoad(Stream dataStream, Stream schemaStream = null)
+        protected virtual void Set(
+            SitemapEntry entry,
+            string name,
+            string value)
+        {
+            switch (name)
+            {
+                case "changefreq":
+                    entry.ChangeFrequency = (ChangeFrequency)Enum.Parse(typeof(ChangeFrequency), value, ignoreCase: true);
+                    break;
+
+                case "lastmod":
+                    entry.LastModified = DateTime.Parse(value);
+                    break;
+
+                case "loc":
+                    var location = Utils.NormalizeLocation(value.Trim());
+                    if (location.Equals(Location, StringComparison.OrdinalIgnoreCase)
+                        || !location.StartsWith(Location, StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    entry.Location = location;
+                    break;
+
+                case "priority":
+                    entry.Priority = double.Parse(value);
+                    break;
+            }
+        }
+
+        private async Task DoLoad(Stream dataStream, Stream schemaStream = null)
         {
             var document = await XDocument.LoadAsync(
                 dataStream,
@@ -142,43 +173,17 @@ namespace Toimik.SitemapsProtocol
                 document,
                 schemaSet,
                 "Sitemap");
-            var tempLocation = Utils.AddDefaultPortIfMissing(Location);
             foreach (var descendant in document.Root.Descendants())
             {
                 var entry = CreateEntry();
                 foreach (XElement element in descendant.Elements())
                 {
                     var name = element.Name.LocalName.ToLower();
-                    switch (name)
-                    {
-                        case "changefreq":
-                            entry.ChangeFrequency = (ChangeFrequency)Enum.Parse(typeof(ChangeFrequency), element.Value, ignoreCase: true);
-                            break;
-
-                        case "lastmod":
-                            entry.LastModified = DateTime.Parse(element.Value);
-                            break;
-
-                        case "loc":
-                            var location = Utils.NormalizeLocation(element.Value.Trim());
-                            var locationWithPort = Utils.AddDefaultPortIfMissing(location);
-                            if (locationWithPort.Equals(tempLocation, StringComparison.OrdinalIgnoreCase)
-                                || !locationWithPort.StartsWith(tempLocation, StringComparison.OrdinalIgnoreCase))
-                            {
-                                break;
-                            }
-
-                            entry.Location = location;
-                            break;
-
-                        case "priority":
-                            entry.Priority = double.Parse(element.Value);
-                            break;
-
-                        default:
-                            HandleExtendedTag(entry, name, element.Value);
-                            break;
-                    }
+                    var value = element.Value;
+                    Set(
+                        entry,
+                        name,
+                        value);
                 }
 
                 if (entry.Location == null)
@@ -192,15 +197,6 @@ namespace Toimik.SitemapsProtocol
                     break;
                 }
             }
-        }
-
-        [ExcludeFromCodeCoverage]
-        protected virtual void HandleExtendedTag(
-            SitemapEntry entry,
-            string name,
-            string value)
-        {
-            // Do nothing
         }
     }
 }

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Toimik.SitemapsProtocol.Tests")]
+
 namespace Toimik.SitemapsProtocol
 {
     using System;
@@ -54,27 +58,6 @@ namespace Toimik.SitemapsProtocol
             return url;
         }
 
-        public static XmlSchemaSet CreateSchemaSet(string schema)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            using var stream = assembly.GetManifestResourceStream(schema);
-            var schemaSet = CreateSchemaSet(stream);
-            return schemaSet;
-        }
-
-        public static XmlSchemaSet CreateSchemaSet(Stream stream)
-        {
-            var schemaSet = new XmlSchemaSet();
-            var settings = new XmlReaderSettings
-            {
-                CloseInput = true,
-            };
-            using var reader = XmlReader.Create(stream, settings);
-            schemaSet.Add(null, reader);
-            schemaSet.Compile();
-            return schemaSet;
-        }
-
         public static string NormalizeLocation(string location)
         {
             string temp = null;
@@ -87,7 +70,7 @@ namespace Toimik.SitemapsProtocol
                     location = $"{url.Scheme}://{url.Authority}{url.PathAndQuery}";
                 }
 
-                temp = location;
+                temp = AddDefaultPortIfMissing(location);
             }
             catch (UriFormatException)
             {
@@ -97,7 +80,28 @@ namespace Toimik.SitemapsProtocol
             return temp;
         }
 
-        public static void Validate(
+        internal static XmlSchemaSet CreateSchemaSet(string schema)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream(schema);
+            var schemaSet = CreateSchemaSet(stream);
+            return schemaSet;
+        }
+
+        internal static XmlSchemaSet CreateSchemaSet(Stream stream)
+        {
+            var schemaSet = new XmlSchemaSet();
+            var settings = new XmlReaderSettings
+            {
+                CloseInput = true,
+            };
+            using var reader = XmlReader.Create(stream, settings);
+            schemaSet.Add(null, reader);
+            schemaSet.Compile();
+            return schemaSet;
+        }
+
+        internal static void Validate(
             XDocument document,
             XmlSchemaSet SchemaSet,
             string documentName)

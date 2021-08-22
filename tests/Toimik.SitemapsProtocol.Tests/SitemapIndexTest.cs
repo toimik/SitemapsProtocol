@@ -26,7 +26,7 @@
             var entries = index.Entries;
             entries.MoveNext();
             var entry = entries.Current;
-            Assert.Equal(expectedLocation, entry.Location);
+            Assert.Equal(Utils.NormalizeLocation(expectedLocation), entry.Location);
             Assert.Equal(DateTime.Parse(expectedLastModified), entry.LastModified);
         }
 
@@ -172,7 +172,7 @@
             var entries = index.Entries;
             entries.MoveNext();
             var entry = entries.Current;
-            Assert.Equal(url, entry.Location);
+            Assert.Equal(Utils.NormalizeLocation(url), entry.Location);
             Assert.False(entries.MoveNext());
         }
 

@@ -117,7 +117,31 @@ namespace Toimik.SitemapsProtocol
             }
         }
 
-        protected virtual async Task DoLoad(Stream dataStream, Stream schemaStream)
+        protected virtual void Set(
+            SitemapIndexEntry entry,
+            string name,
+            string value)
+        {
+            switch (name)
+            {
+                case "lastmod":
+                    entry.LastModified = DateTime.Parse(value);
+                    break;
+
+                case "loc":
+                    var location = Utils.NormalizeLocation(value.Trim());
+                    if (location.Equals(Location, StringComparison.OrdinalIgnoreCase)
+                        || !location.StartsWith(Location, StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    entry.Location = location;
+                    break;
+            }
+        }
+
+        private async Task DoLoad(Stream dataStream, Stream schemaStream)
         {
             var document = await XDocument.LoadAsync(
                 dataStream,
@@ -130,31 +154,17 @@ namespace Toimik.SitemapsProtocol
                 document,
                 schemaSet,
                 "Sitemap Index");
-            var tempLocation = Utils.AddDefaultPortIfMissing(Location);
             foreach (var descendant in document.Root.Descendants())
             {
                 var entry = new SitemapIndexEntry();
                 foreach (XElement element in descendant.Elements())
                 {
                     var name = element.Name.LocalName.ToLower();
-                    switch (name)
-                    {
-                        case "lastmod":
-                            entry.LastModified = DateTime.Parse(element.Value);
-                            break;
-
-                        case "loc":
-                            var location = Utils.NormalizeLocation(element.Value.Trim());
-                            var locationWithPort = Utils.AddDefaultPortIfMissing(location);
-                            if (locationWithPort.Equals(tempLocation, StringComparison.OrdinalIgnoreCase)
-                                || !locationWithPort.StartsWith(tempLocation, StringComparison.OrdinalIgnoreCase))
-                            {
-                                break;
-                            }
-
-                            entry.Location = location;
-                            break;
-                    }
+                    var value = element.Value;
+                    Set(
+                        entry,
+                        name,
+                        value);
                 }
 
                 if (entry.Location == null)
