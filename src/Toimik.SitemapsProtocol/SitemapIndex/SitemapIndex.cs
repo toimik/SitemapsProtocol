@@ -56,9 +56,10 @@ namespace Toimik.SitemapsProtocol
 
         public bool AddEntry(SitemapIndexEntry entry)
         {
-            var flag = entries.Count != EntryMaxCount
+            var isWithinMaxCount = entries.Count < EntryMaxCount;
+            var isAdded = isWithinMaxCount
                 && entries.Add(entry);
-            return flag;
+            return isAdded;
         }
 
         /// <summary>
