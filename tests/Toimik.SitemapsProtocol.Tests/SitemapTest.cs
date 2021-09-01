@@ -1,6 +1,7 @@
 ﻿namespace Toimik.SitemapsProtocol.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using Xunit;
 
@@ -29,8 +30,7 @@
             sitemap.Load(data);
 
             var entries = sitemap.Entries;
-            entries.MoveNext();
-            var entry = entries.Current;
+            var entry = GetOnlyEntry(entries);
             Assert.Equal(Utils.NormalizeLocation(expectedLocation), entry.Location);
             Assert.Equal(ExpectedChangeFrequency, entry.ChangeFrequency);
             Assert.Equal(ExpectedPriority, entry.Priority);
@@ -56,8 +56,7 @@
             extendedSitemap.Load(data, stream);
 
             var entries = extendedSitemap.Entries;
-            entries.MoveNext();
-            var entry = (ExtendedSitemapEntry)entries.Current;
+            var entry = (ExtendedSitemapEntry)GetOnlyEntry(entries);
             Assert.Equal(ExpectedValue, entry.Title);
         }
 
@@ -236,8 +235,7 @@
             sitemap.Load(data);
 
             var entries = sitemap.Entries;
-            entries.MoveNext();
-            var entry = entries.Current;
+            var entry = GetOnlyEntry(entries);
             Assert.Equal(Utils.NormalizeLocation(url), entry.Location);
             Assert.False(entries.MoveNext());
         }
@@ -356,6 +354,13 @@
             sitemap.Load(data);
 
             Assert.False(sitemap.Entries.MoveNext());
+        }
+
+        private static SitemapEntry GetOnlyEntry(IEnumerator<SitemapEntry> entries)
+        {
+            entries.MoveNext();
+            var entry = entries.Current;
+            return entry;
         }
 
         private class ExtendedSitemap : Sitemap

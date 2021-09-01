@@ -1,6 +1,7 @@
 ﻿namespace Toimik.SitemapsProtocol.Tests
 {
     using System;
+    using System.Collections.Generic;
     using Xunit;
 
     public class SitemapIndexTest
@@ -24,8 +25,7 @@
             index.Load(data);
 
             var entries = index.Entries;
-            entries.MoveNext();
-            var entry = entries.Current;
+            var entry = GetOnlyEntry(entries);
             Assert.Equal(Utils.NormalizeLocation(expectedLocation), entry.Location);
             Assert.Equal(DateTime.Parse(expectedLastModified), entry.LastModified);
         }
@@ -170,8 +170,7 @@
             index.Load(data);
 
             var entries = index.Entries;
-            entries.MoveNext();
-            var entry = entries.Current;
+            var entry = GetOnlyEntry(entries);
             Assert.Equal(Utils.NormalizeLocation(url), entry.Location);
             Assert.False(entries.MoveNext());
         }
@@ -290,6 +289,13 @@
             index.Load(data);
 
             Assert.False(index.Entries.MoveNext());
+        }
+
+        private static SitemapIndexEntry GetOnlyEntry(IEnumerator<SitemapIndexEntry> entries)
+        {
+            entries.MoveNext();
+            var entry = entries.Current;
+            return entry;
         }
     }
 }
