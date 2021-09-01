@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("Toimik.SitemapsProtocol.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Toimik.SitemapsProtocol.Tests")]
 
 namespace Toimik.SitemapsProtocol
 {
