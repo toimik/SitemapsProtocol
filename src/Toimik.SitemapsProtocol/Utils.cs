@@ -19,20 +19,14 @@
 namespace Toimik.SitemapsProtocol
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Reflection;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Schema;
 
-    public class Utils
+    public static class Utils
     {
-        [ExcludeFromCodeCoverage]
-        private Utils()
-        {
-        }
-
         public static string AddDefaultPortIfMissing(string url)
         {
             // NOTE: Parameter is guaranteed to be in a valid URL format
