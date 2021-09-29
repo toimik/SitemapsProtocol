@@ -26,42 +26,15 @@ namespace Toimik.SitemapsProtocol
 
     public static class Utils
     {
-        public static string AddDefaultPortIfMissing(string url)
-        {
-            // NOTE: Parameter is guaranteed to be in a valid URL format
-            const string ColonSlashSlash = "://";
-            var index = url.IndexOf(ColonSlashSlash);
-            var startIndex = index + ColonSlashSlash.Length;
-            var colonIndex = url.IndexOf(':', startIndex);
-            if (colonIndex == -1)
-            {
-                // There will always be a slash
-                var slashIndex = url.IndexOf('/', startIndex);
-
-                // e.g. http://www.example.com/
-
-                // e.g. http://www.example.com/path
-                var prefix = url.Substring(0, slashIndex);
-                var suffix = url[slashIndex..];
-                url = $"{prefix}:80{suffix}";
-            }
-
-            return url;
-        }
-
         public static string NormalizeLocation(string location)
         {
             string temp = null;
             try
             {
                 var url = new Uri(location);
-                if (url.UserInfo != null)
-                {
-                    // The standard has deprecated username:password in URL
-                    location = $"{url.Scheme}://{url.Authority}{url.PathAndQuery}";
-                }
 
-                temp = AddDefaultPortIfMissing(location);
+                // The standard has deprecated username:password in URL. It is removed, if present.
+                temp = $"{url.Scheme}://{url.Authority}:{url.Port}{url.PathAndQuery}";
             }
             catch (UriFormatException)
             {
