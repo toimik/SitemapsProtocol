@@ -22,7 +22,6 @@ namespace Toimik.SitemapsProtocol
     using System.IO;
     using System.Reflection;
     using System.Xml;
-    using System.Xml.Linq;
     using System.Xml.Schema;
 
     public static class Utils
@@ -93,21 +92,12 @@ namespace Toimik.SitemapsProtocol
             return schemaSet;
         }
 
-        internal static void Validate(
-            XDocument document,
-            XmlSchemaSet SchemaSet,
-            string documentName)
+        internal static void ValidateNamespace(XmlReader reader)
         {
-            const string Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
-            if (!document.Root.Name.NamespaceName.Equals(Namespace))
+            if (reader.NamespaceURI == string.Empty)
             {
-                throw new ArgumentException($"Root element's namespace must be \"{Namespace}\".");
+                throw new XmlException($"Root element's namespace must be http://www.sitemaps.org/schemas/sitemap/0.9.");
             }
-
-            document.Validate(SchemaSet, (o, e) =>
-            {
-                throw new ArgumentException($"{documentName} fails XML Schema Definition validation: {e.Message}");
-            });
         }
     }
 }

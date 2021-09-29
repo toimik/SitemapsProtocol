@@ -73,10 +73,6 @@
                         <loc>{Location}/sitemap.xml</loc>
                         <priority>0</priority>
                     </url>
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                        <priority>0</priority>
-                    </url>
                 </urlset>".TrimStart();
 
             sitemap.Load(data);
@@ -108,6 +104,9 @@
                     </url>
                     <url>
                         <loc>{Location}/sitemap3.xml</loc>
+                    </url>
+                    <url>
+                        <loc>{Location}/sitemap4.xml</loc>
                     </url>
                 </urlset>".TrimStart();
 
@@ -380,7 +379,7 @@
                 string name,
                 string value)
             {
-                if (name.Equals("title"))
+                if (name.Equals("example:title"))
                 {
                     ((ExtendedSitemapEntry)entry).Title = value;
                 }

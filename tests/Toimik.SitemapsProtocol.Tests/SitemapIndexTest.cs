@@ -74,6 +74,9 @@
                     <sitemap>
                         <loc>{Location}/sitemap3.xml.gz</loc>
                     </sitemap>
+                    <sitemap>
+                        <loc>{Location}/sitemap4.xml.gz</loc>
+                    </sitemap>
                 </sitemapindex>".TrimStart();
 
             index.Load(data);

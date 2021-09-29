@@ -20,10 +20,8 @@ namespace Toimik.SitemapsProtocol
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
-    using System.Xml.Linq;
     using System.Xml.Schema;
 
     public class SitemapIndex
@@ -116,10 +114,19 @@ namespace Toimik.SitemapsProtocol
             {
                 throw new ArgumentException(ex.Message);
             }
+            catch (XmlSchemaValidationException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
+        }
+
+        protected virtual SitemapIndexEntry CreateEntry()
+        {
+            return new SitemapIndexEntry();
         }
 
         protected virtual void Set(
-            SitemapIndexEntry entry,
+                    SitemapIndexEntry entry,
             string name,
             string value)
         {
@@ -144,39 +151,63 @@ namespace Toimik.SitemapsProtocol
 
         private async Task DoLoad(Stream dataStream, Stream schemaStream)
         {
-            var document = await XDocument.LoadAsync(
-                dataStream,
-                LoadOptions.None,
-                CancellationToken.None);
-            var schemaSet = schemaStream == null
+            var settings = new XmlReaderSettings
+            {
+                Async = true,
+            };
+            var inner = XmlReader.Create(dataStream, settings);
+            settings.Schemas = schemaStream == null
                 ? SchemaSet
                 : Utils.CreateSchemaSet(schemaStream);
-            Utils.Validate(
-                document,
-                schemaSet,
-                "Sitemap Index");
-            foreach (var descendant in document.Root.Descendants())
+            settings.ValidationType = ValidationType.Schema;
+            var reader = XmlReader.Create(inner, settings);
+            reader.MoveToContent();
+            Utils.ValidateNamespace(reader);
+            var entry = CreateEntry();
+            while (await reader.ReadAsync())
             {
-                var entry = new SitemapIndexEntry();
-                foreach (XElement element in descendant.Elements())
+                if (!reader.IsStartElement())
                 {
-                    var name = element.Name.LocalName.ToLower();
-                    var value = element.Value;
-                    Set(
-                        entry,
-                        name,
-                        value);
+                    if (reader.Name.Equals("sitemapindex"))
+                    {
+                        if (entry.Location != null)
+                        {
+                            AddEntry(entry);
+                        }
+                    }
                 }
-
-                if (entry.Location == null)
+                else
                 {
-                    continue;
-                }
+                    var isWithinMaxCount = true;
+                    var name = reader.Name;
+                    switch (name)
+                    {
+                        case "sitemap":
+                            if (entry.Location != null)
+                            {
+                                isWithinMaxCount = AddEntry(entry);
+                                if (!isWithinMaxCount)
+                                {
+                                    break;
+                                }
+                            }
 
-                var flag = AddEntry(entry);
-                if (!flag)
-                {
-                    break;
+                            entry = CreateEntry();
+                            break;
+
+                        default:
+                            var value = await reader.ReadElementContentAsStringAsync();
+                            Set(
+                                entry,
+                                name,
+                                value);
+                            break;
+                    }
+
+                    if (!isWithinMaxCount)
+                    {
+                        break;
+                    }
                 }
             }
         }
