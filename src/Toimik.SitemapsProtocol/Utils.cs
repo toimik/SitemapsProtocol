@@ -26,6 +26,8 @@ namespace Toimik.SitemapsProtocol
 
     public static class Utils
     {
+        // NOTE: The return type is a string instead of a Uri because using the latter causes the
+        // default port to be removed
         public static string NormalizeLocation(string location)
         {
             string temp = null;
