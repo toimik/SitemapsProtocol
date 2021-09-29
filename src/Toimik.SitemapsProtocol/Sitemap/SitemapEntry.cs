@@ -20,16 +20,57 @@ namespace Toimik.SitemapsProtocol
 
     public class SitemapEntry : IEntry
     {
-        public SitemapEntry()
+        private const string TagForChangeFrequency = "changefreq";
+
+        private const string TagForLastModified = "lastmod";
+
+        private const string TagForLocation = "loc";
+
+        private const string TagForPriority = "priority";
+
+        public SitemapEntry(string locationPrefix)
         {
+            LocationPrefix = locationPrefix;
         }
 
-        public ChangeFrequency? ChangeFrequency { get; internal set; }
+        public ChangeFrequency? ChangeFrequency { get; private set; }
 
-        public DateTime? LastModified { get; internal set; }
+        public DateTime? LastModified { get; private set; }
 
-        public string Location { get; internal set; }
+        public string Location { get; private set; }
 
-        public double? Priority { get; internal set; }
+        public string LocationPrefix { get; }
+
+        public double? Priority { get; private set; }
+
+        internal virtual void Set(string name, string value)
+        {
+            switch (name)
+            {
+                case TagForChangeFrequency:
+                    ChangeFrequency = (ChangeFrequency)Enum.Parse(typeof(ChangeFrequency), value, ignoreCase: true);
+                    break;
+
+                case TagForLastModified:
+                    LastModified = DateTime.Parse(value);
+                    break;
+
+                case TagForLocation:
+                    var location = Utils.NormalizeLocation(value.Trim());
+                    var root = LocationPrefix.ToString();
+                    if (location.Equals(root, StringComparison.OrdinalIgnoreCase)
+                        || !location.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    Location = location;
+                    break;
+
+                case TagForPriority:
+                    Priority = double.Parse(value);
+                    break;
+            }
+        }
     }
 }

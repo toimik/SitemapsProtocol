@@ -20,12 +20,40 @@ namespace Toimik.SitemapsProtocol
 
     public class SitemapIndexEntry : IEntry
     {
-        public SitemapIndexEntry()
+        private const string TagForLastModified = "lastmod";
+
+        private const string TagForLocation = "loc";
+
+        public SitemapIndexEntry(string locationPrefix)
         {
+            LocationPrefix = locationPrefix;
         }
 
         public DateTime? LastModified { get; internal set; }
 
         public string Location { get; internal set; }
+
+        public string LocationPrefix { get; }
+
+        internal virtual void Set(string name, string value)
+        {
+            switch (name)
+            {
+                case TagForLastModified:
+                    LastModified = DateTime.Parse(value);
+                    break;
+
+                case TagForLocation:
+                    var location = Utils.NormalizeLocation(value.Trim());
+                    if (location.Equals(LocationPrefix, StringComparison.OrdinalIgnoreCase)
+                        || !location.StartsWith(LocationPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    Location = location;
+                    break;
+            }
+        }
     }
 }

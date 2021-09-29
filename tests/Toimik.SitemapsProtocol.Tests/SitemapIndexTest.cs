@@ -81,7 +81,7 @@
 
             index.Load(data);
 
-            Assert.Equal(index.EntryMaxCount, index.EntryCount);
+            Assert.Equal(index.Parser.EntryMaxCount, index.EntryCount);
         }
 
         [Fact]

@@ -40,7 +40,8 @@
         [Fact]
         public void CustomSchema()
         {
-            var extendedSitemap = new ExtendedSitemap(Location);
+            var parser = new ExtendedSitemapParser(Location);
+            var sitemap = new Sitemap(parser);
             const string ExpectedValue = "foobar";
             var data = @$"
                 <?xml version='1.0' encoding='UTF-8'?>
@@ -53,9 +54,9 @@
                     </url>
                 </urlset>".TrimStart();
             using var stream = File.OpenRead(@$"Resources{Path.DirectorySeparatorChar}example.xsd");
-            extendedSitemap.Load(data, stream);
+            sitemap.Load(data, stream);
 
-            var entries = extendedSitemap.Entries;
+            var entries = sitemap.Entries;
             var entry = (ExtendedSitemapEntry)GetOnlyEntry(entries);
             Assert.Equal(ExpectedValue, entry.Title);
         }
@@ -112,7 +113,7 @@
 
             sitemap.Load(data);
 
-            Assert.Equal(sitemap.EntryMaxCount, sitemap.EntryCount);
+            Assert.Equal(sitemap.Parser.EntryMaxCount, sitemap.EntryCount);
         }
 
         [Fact]
@@ -362,45 +363,39 @@
             return entry;
         }
 
-        private class ExtendedSitemap : Sitemap
+        private class ExtendedSitemapEntry : SitemapEntry
         {
-            public ExtendedSitemap(string location)
+            public ExtendedSitemapEntry(string locationPrefix)
+                : base(locationPrefix)
+            {
+            }
+
+            public string Title { get; internal set; }
+
+            internal override void Set(string name, string value)
+            {
+                if (name.Equals("example:title"))
+                {
+                    Title = value;
+                }
+                else
+                {
+                    base.Set(name, value);
+                }
+            }
+        }
+
+        private class ExtendedSitemapParser : SitemapParser
+        {
+            public ExtendedSitemapParser(string location)
                 : base(location)
             {
             }
 
             protected override SitemapEntry CreateEntry()
             {
-                return new ExtendedSitemapEntry();
+                return new ExtendedSitemapEntry(Location);
             }
-
-            protected override void Set(
-                SitemapEntry entry,
-                string name,
-                string value)
-            {
-                if (name.Equals("example:title"))
-                {
-                    ((ExtendedSitemapEntry)entry).Title = value;
-                }
-                else
-                {
-                    base.Set(
-                        entry,
-                        name,
-                        value);
-                }
-            }
-        }
-
-        private class ExtendedSitemapEntry : SitemapEntry
-        {
-            public ExtendedSitemapEntry()
-                : base()
-            {
-            }
-
-            public string Title { get; internal set; }
         }
     }
 }

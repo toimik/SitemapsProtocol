@@ -26,35 +26,27 @@ namespace Toimik.SitemapsProtocol
 
     public class SitemapIndex
     {
-        // As per standard
-        private const int DefaultEntryMaxCount = 50000;
-
-        private static readonly XmlSchemaSet SchemaSet;
-
         private readonly ISet<SitemapIndexEntry> entries = new HashSet<SitemapIndexEntry>(new EntryComparer());
 
-        static SitemapIndex()
+        public SitemapIndex(SitemapIndexParser parser)
         {
-            SchemaSet = Utils.CreateSchemaSet($"{typeof(SitemapIndex).Namespace}.Resources.siteindex.xsd");
+            Parser = parser;
         }
 
-        public SitemapIndex(string location, int entryMaxCount = DefaultEntryMaxCount)
+        public SitemapIndex(string location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
+            : this(new SitemapIndexParser(location, entryMaxCount))
         {
-            Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
-            EntryMaxCount = entryMaxCount;
         }
 
         public IEnumerator<SitemapIndexEntry> Entries => entries.GetEnumerator();
 
         public int EntryCount => entries.Count;
 
-        public int EntryMaxCount { get; }
-
-        public string Location { get; }
+        public SitemapIndexParser Parser { get; }
 
         public bool AddEntry(SitemapIndexEntry entry)
         {
-            var isWithinMaxCount = entries.Count < EntryMaxCount;
+            var isWithinMaxCount = entries.Count < Parser.EntryMaxCount;
             var isAdded = isWithinMaxCount
                 && entries.Add(entry);
             return isAdded;
@@ -120,95 +112,11 @@ namespace Toimik.SitemapsProtocol
             }
         }
 
-        protected virtual SitemapIndexEntry CreateEntry()
-        {
-            return new SitemapIndexEntry();
-        }
-
-        protected virtual void Set(
-                    SitemapIndexEntry entry,
-            string name,
-            string value)
-        {
-            switch (name)
-            {
-                case "lastmod":
-                    entry.LastModified = DateTime.Parse(value);
-                    break;
-
-                case "loc":
-                    var location = Utils.NormalizeLocation(value.Trim());
-                    if (location.Equals(Location, StringComparison.OrdinalIgnoreCase)
-                        || !location.StartsWith(Location, StringComparison.OrdinalIgnoreCase))
-                    {
-                        break;
-                    }
-
-                    entry.Location = location;
-                    break;
-            }
-        }
-
         private async Task DoLoad(Stream dataStream, Stream schemaStream)
         {
-            var settings = new XmlReaderSettings
+            await foreach (SitemapIndexEntry entry in Parser.Parse(dataStream, schemaStream))
             {
-                Async = true,
-            };
-            var inner = XmlReader.Create(dataStream, settings);
-            settings.Schemas = schemaStream == null
-                ? SchemaSet
-                : Utils.CreateSchemaSet(schemaStream);
-            settings.ValidationType = ValidationType.Schema;
-            var reader = XmlReader.Create(inner, settings);
-            reader.MoveToContent();
-            Utils.ValidateNamespace(reader);
-            var entry = CreateEntry();
-            while (await reader.ReadAsync())
-            {
-                if (!reader.IsStartElement())
-                {
-                    if (reader.Name.Equals("sitemapindex"))
-                    {
-                        if (entry.Location != null)
-                        {
-                            AddEntry(entry);
-                        }
-                    }
-                }
-                else
-                {
-                    var isWithinMaxCount = true;
-                    var name = reader.Name;
-                    switch (name)
-                    {
-                        case "sitemap":
-                            if (entry.Location != null)
-                            {
-                                isWithinMaxCount = AddEntry(entry);
-                                if (!isWithinMaxCount)
-                                {
-                                    break;
-                                }
-                            }
-
-                            entry = CreateEntry();
-                            break;
-
-                        default:
-                            var value = await reader.ReadElementContentAsStringAsync();
-                            Set(
-                                entry,
-                                name,
-                                value);
-                            break;
-                    }
-
-                    if (!isWithinMaxCount)
-                    {
-                        break;
-                    }
-                }
+                AddEntry(entry);
             }
         }
     }
