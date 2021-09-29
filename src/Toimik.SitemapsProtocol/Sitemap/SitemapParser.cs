@@ -38,7 +38,7 @@ namespace Toimik.SitemapsProtocol
             SchemaSet = Utils.CreateSchemaSet($"{typeof(Sitemap).Namespace}.Resources.sitemap.xsd");
         }
 
-        public SitemapParser(string location, int entryMaxCount = DefaultEntryMaxCount)
+        public SitemapParser(Uri location, int entryMaxCount = DefaultEntryMaxCount)
         {
             Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
             EntryMaxCount = entryMaxCount;

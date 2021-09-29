@@ -6,13 +6,13 @@
 
     public class SitemapIndexTest
     {
-        const string Location = "http://www.example.com";
+        private static readonly Uri Location = new("http://www.example.com");
 
         [Fact]
         public void AllFieldsSpecified()
         {
             var index = new SitemapIndex(Location);
-            var expectedLocation = $"{Location}/sitemap-index.xml.gz";
+            var expectedLocation = new Uri($"{Location}/sitemap-index.xml.gz");
             var expectedLastModified = "2005-01-01";
             var data = @$"
                 <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
@@ -82,12 +82,6 @@
             index.Load(data);
 
             Assert.Equal(index.Parser.EntryMaxCount, index.EntryCount);
-        }
-
-        [Fact]
-        public void InvalidConstructorParameter()
-        {
-            Assert.Throws<ArgumentException>(() => new SitemapIndex("www.example.com"));
         }
 
         [Fact]
@@ -162,19 +156,19 @@
                     </sitemap>
                 </sitemapindex>".TrimStart();
             index.Load(data);
-            var url = $"{Location}/sitemap3.xml";
+            var location = new Uri($"{Location}/sitemap3.xml");
             data = @$"
                 <?xml version=""1.0"" encoding=""UTF-8""?>
                 <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <sitemap>
-                        <loc>{url}</loc>
+                        <loc>{location}</loc>
                     </sitemap>
                 </sitemapindex>".TrimStart();
             index.Load(data);
 
             var entries = index.Entries;
             var entry = GetOnlyEntry(entries);
-            Assert.Equal(Utils.NormalizeLocation(url), entry.Location);
+            Assert.Equal(Utils.NormalizeLocation(location), entry.Location);
             Assert.False(entries.MoveNext());
         }
 

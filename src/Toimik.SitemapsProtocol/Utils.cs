@@ -28,21 +28,10 @@ namespace Toimik.SitemapsProtocol
     {
         // NOTE: The return type is a string instead of a Uri because using the latter causes the
         // default port to be removed
-        public static string NormalizeLocation(string location)
+        public static string NormalizeLocation(Uri location)
         {
-            string temp = null;
-            try
-            {
-                var url = new Uri(location);
-
-                // The standard has deprecated username:password in URL. It is removed, if present.
-                temp = $"{url.Scheme}://{url.Authority}:{url.Port}{url.PathAndQuery}";
-            }
-            catch (UriFormatException)
-            {
-                // Do nothing
-            }
-
+            // The standard has deprecated username:password in URL. It is removed, if present.
+            var temp = $"{location.Scheme}://{location.Authority}:{location.Port}{location.PathAndQuery}";
             return temp;
         }
 

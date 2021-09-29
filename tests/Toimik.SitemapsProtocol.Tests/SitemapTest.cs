@@ -7,13 +7,13 @@
 
     public class SitemapTest
     {
-        const string Location = "http://www.example.com";
+        private static readonly Uri Location = new("http://www.example.com");
 
         [Fact]
         public void AllFieldsSpecified()
         {
             var sitemap = new Sitemap(Location);
-            var expectedLocation = $"{Location}/sitemap.xml";
+            var expectedLocation = new Uri($"{Location}/sitemap.xml");
             var expectedLastModified = "2005-01-01";
             const ChangeFrequency ExpectedChangeFrequency = ChangeFrequency.Monthly;
             const double ExpectedPriority = 0.8;
@@ -132,12 +132,6 @@
         }
 
         [Fact]
-        public void InvalidConstructorParameter()
-        {
-            Assert.Throws<ArgumentException>(() => new Sitemap("www.example.com"));
-        }
-
-        [Fact]
         public void InvalidLastModified()
         {
             var sitemap = new Sitemap(Location);
@@ -224,19 +218,19 @@
                     </url>
                 </urlset>".TrimStart();
             sitemap.Load(data);
-            var url = $"{Location}/sitemap3.xml";
+            var location = new Uri($"{Location}/sitemap3.xml");
             data = @$"
                 <?xml version=""1.0"" encoding=""UTF-8""?>
                 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
                     <url>
-                        <loc>{url}</loc>
+                        <loc>{location}</loc>
                     </url>
                 </urlset>".TrimStart();
             sitemap.Load(data);
 
             var entries = sitemap.Entries;
             var entry = GetOnlyEntry(entries);
-            Assert.Equal(Utils.NormalizeLocation(url), entry.Location);
+            Assert.Equal(Utils.NormalizeLocation(location), entry.Location);
             Assert.False(entries.MoveNext());
         }
 
@@ -387,7 +381,7 @@
 
         private class ExtendedSitemapParser : SitemapParser
         {
-            public ExtendedSitemapParser(string location)
+            public ExtendedSitemapParser(Uri location)
                 : base(location)
             {
             }

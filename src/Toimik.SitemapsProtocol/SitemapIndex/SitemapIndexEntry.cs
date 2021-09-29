@@ -44,7 +44,7 @@ namespace Toimik.SitemapsProtocol
                     break;
 
                 case TagForLocation:
-                    var location = Utils.NormalizeLocation(value.Trim());
+                    var location = Utils.NormalizeLocation(new Uri(value.Trim()));
                     if (location.Equals(BaseLocation, StringComparison.OrdinalIgnoreCase)
                         || !location.StartsWith(BaseLocation, StringComparison.OrdinalIgnoreCase))
                     {

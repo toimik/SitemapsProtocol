@@ -33,7 +33,7 @@ namespace Toimik.SitemapsProtocol
             Parser = parser;
         }
 
-        public SitemapIndex(string location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
+        public SitemapIndex(Uri location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
             : this(new SitemapIndexParser(location, entryMaxCount))
         {
         }
