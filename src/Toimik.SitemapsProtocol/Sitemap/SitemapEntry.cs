@@ -28,18 +28,18 @@ namespace Toimik.SitemapsProtocol
 
         private const string TagForPriority = "priority";
 
-        public SitemapEntry(string locationPrefix)
+        public SitemapEntry(string baseLocation)
         {
-            LocationPrefix = locationPrefix;
+            BaseLocation = baseLocation;
         }
+
+        public string BaseLocation { get; }
 
         public ChangeFrequency? ChangeFrequency { get; private set; }
 
         public DateTime? LastModified { get; private set; }
 
         public string Location { get; private set; }
-
-        public string LocationPrefix { get; }
 
         public double? Priority { get; private set; }
 
@@ -57,7 +57,7 @@ namespace Toimik.SitemapsProtocol
 
                 case TagForLocation:
                     var location = Utils.NormalizeLocation(value.Trim());
-                    var root = LocationPrefix.ToString();
+                    var root = BaseLocation.ToString();
                     if (location.Equals(root, StringComparison.OrdinalIgnoreCase)
                         || !location.StartsWith(root, StringComparison.OrdinalIgnoreCase))
                     {

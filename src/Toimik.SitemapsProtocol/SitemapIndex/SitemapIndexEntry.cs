@@ -24,16 +24,16 @@ namespace Toimik.SitemapsProtocol
 
         private const string TagForLocation = "loc";
 
-        public SitemapIndexEntry(string locationPrefix)
+        public SitemapIndexEntry(string baseLocation)
         {
-            LocationPrefix = locationPrefix;
+            BaseLocation = baseLocation;
         }
+
+        public string BaseLocation { get; }
 
         public DateTime? LastModified { get; internal set; }
 
         public string Location { get; internal set; }
-
-        public string LocationPrefix { get; }
 
         internal virtual void Set(string name, string value)
         {
@@ -45,8 +45,8 @@ namespace Toimik.SitemapsProtocol
 
                 case TagForLocation:
                     var location = Utils.NormalizeLocation(value.Trim());
-                    if (location.Equals(LocationPrefix, StringComparison.OrdinalIgnoreCase)
-                        || !location.StartsWith(LocationPrefix, StringComparison.OrdinalIgnoreCase))
+                    if (location.Equals(BaseLocation, StringComparison.OrdinalIgnoreCase)
+                        || !location.StartsWith(BaseLocation, StringComparison.OrdinalIgnoreCase))
                     {
                         break;
                     }
