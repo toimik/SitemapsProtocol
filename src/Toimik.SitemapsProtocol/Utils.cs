@@ -57,7 +57,7 @@ namespace Toimik.SitemapsProtocol
                 var url = new Uri(location);
                 if (url.UserInfo != null)
                 {
-                    // The standard has deprecate username:password in URL
+                    // The standard has deprecated username:password in URL
                     location = $"{url.Scheme}://{url.Authority}{url.PathAndQuery}";
                 }
 
