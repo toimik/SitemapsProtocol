@@ -1,3 +1,5 @@
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/toimik/SitemapsProtocol/CI)
+
 # Toimik.SitemapsProtocol
 
 .NET 5 C# [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) parser and Sitemap Index parser.
