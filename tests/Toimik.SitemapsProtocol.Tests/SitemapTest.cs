@@ -310,7 +310,7 @@
                     </url>
                 </urlset>".TrimStart();
             sitemap.Load(data);
-            sitemap = new Sitemap(Location);
+            sitemap = new(Location);
             sitemap.Load(data);
 
             Assert.Equal(1, sitemap.EntryCount);

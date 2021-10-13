@@ -248,7 +248,7 @@
                     </sitemap>
                 </sitemapindex>".TrimStart();
             index.Load(data);
-            index = new SitemapIndex(Location);
+            index = new(Location);
             index.Load(data);
 
             Assert.Equal(1, index.EntryCount);
