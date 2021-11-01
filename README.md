@@ -1,5 +1,5 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/toimik/SitemapsProtocol/CI)
-![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nurhafiz/290ef684adc013ef633c637f8f227f57/raw/code-coverage.json)
+![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nurhafiz/8b8e2599175b077c2ffede14a92b8d75/raw/SitemapsProtocol-coverage.json)
 
 # Toimik.SitemapsProtocol
 

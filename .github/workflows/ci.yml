@@ -38,6 +38,6 @@ jobs:
         label: coverage
         color: brightgreen
         path: tests/Toimik.SitemapsProtocol.Tests/coverage.opencover.xml
-        gist-filename: code-coverage.json
-        gist-id: 290ef684adc013ef633c637f8f227f57
+        gist-filename: SitemapsProtocol-coverage.json
+        gist-id: 8b8e2599175b077c2ffede14a92b8d75
         gist-auth-token: ${{ secrets.GIST_AUTH_TOKEN }}
