@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toimik.SitemapsProtocol", "src\Toimik.SitemapsProtocol\Toimik.SitemapsProtocol.csproj", "{F5CF3C29-FC98-47B6-8BF6-B12001FC4EA5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toimik.SitemapsProtocol.Tests", "tests\Toimik.SitemapsProtocol.Tests\Toimik.SitemapsProtocol.Tests.csproj", "{33154C99-79AF-4598-BE2C-7540DFF7B15D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E09CDCB-CC31-4D47-865C-77F9C6BEF1DF}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
