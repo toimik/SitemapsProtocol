@@ -53,7 +53,7 @@ namespace Toimik.SitemapsProtocol
         }
 
         /// <summary>
-        /// Loads, to this instance, the data of a sitemap from a <see cref="String"/>.
+        /// Loads, to this instance, the data of a sitemap from a <see cref="string"/>.
         /// </summary>
         /// <param name="data">
         /// Data of a sitemap.
