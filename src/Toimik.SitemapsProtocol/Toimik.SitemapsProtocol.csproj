@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Toimik.SitemapsProtocol</AssemblyName>
-    <PackageVersion>0.4.0</PackageVersion>
+    <PackageVersion>0.4.1</PackageVersion>
     <Authors>Nurhafiz</Authors>
-    <Version>0.4.0</Version>
+    <Version>0.4.1</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Company>Toimik</Company>
     <Description>
@@ -21,7 +21,7 @@
     <PackageTags>
       site-map sitemap sitemaps sitemap.xml xml-sitemap
     </PackageTags>
-    <Product>SitemapsProtocol</Product>
+    <Product>Toimik.SitemapsProtocol</Product>
   </PropertyGroup>
 
   <ItemGroup>
