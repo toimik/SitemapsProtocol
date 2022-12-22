@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,111 +14,110 @@
  * limitations under the License.
  */
 
-namespace Toimik.SitemapsProtocol
+namespace Toimik.SitemapsProtocol;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using System.Xml.Schema;
+
+public class SitemapParser
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Xml;
-    using System.Xml.Schema;
+    // As per standard
+    internal const int DefaultEntryMaxCount = 50000;
 
-    public class SitemapParser
+    private const string TagForUrl = "url";
+
+    private const string TagForUrlSet = "urlset";
+
+    private static readonly XmlSchemaSet SchemaSet;
+
+    static SitemapParser()
     {
-        // As per standard
-        internal const int DefaultEntryMaxCount = 50000;
+        SchemaSet = Utils.CreateSchemaSet($"{typeof(Sitemap).Namespace}.Resources.sitemap.xsd");
+    }
 
-        private const string TagForUrl = "url";
+    public SitemapParser(Uri location, int entryMaxCount = DefaultEntryMaxCount)
+    {
+        Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
+        EntryMaxCount = entryMaxCount;
+    }
 
-        private const string TagForUrlSet = "urlset";
+    public int EntryMaxCount { get; }
 
-        private static readonly XmlSchemaSet SchemaSet;
+    public string Location { get; }
 
-        static SitemapParser()
+    public async IAsyncEnumerable<SitemapEntry> Parse(Stream dataStream, Stream? schemaStream = null)
+    {
+        var settings = new XmlReaderSettings
         {
-            SchemaSet = Utils.CreateSchemaSet($"{typeof(Sitemap).Namespace}.Resources.sitemap.xsd");
-        }
-
-        public SitemapParser(Uri location, int entryMaxCount = DefaultEntryMaxCount)
+            Async = true,
+        };
+        var inner = XmlReader.Create(dataStream, settings);
+        settings.Schemas = schemaStream == null
+            ? SchemaSet
+            : Utils.CreateSchemaSet(schemaStream);
+        settings.ValidationType = ValidationType.Schema;
+        var reader = XmlReader.Create(inner, settings);
+        reader.MoveToContent();
+        Utils.ValidateNamespace(reader);
+        var entryCount = 0;
+        var entry = CreateEntry();
+        while (await reader.ReadAsync().ConfigureAwait(false))
         {
-            Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
-            EntryMaxCount = entryMaxCount;
-        }
-
-        public int EntryMaxCount { get; }
-
-        public string Location { get; }
-
-        public async IAsyncEnumerable<SitemapEntry> Parse(Stream dataStream, Stream schemaStream)
-        {
-            var settings = new XmlReaderSettings
+            if (!reader.IsStartElement())
             {
-                Async = true,
-            };
-            var inner = XmlReader.Create(dataStream, settings);
-            settings.Schemas = schemaStream == null
-                ? SchemaSet
-                : Utils.CreateSchemaSet(schemaStream);
-            settings.ValidationType = ValidationType.Schema;
-            var reader = XmlReader.Create(inner, settings);
-            reader.MoveToContent();
-            Utils.ValidateNamespace(reader);
-            var entryCount = 0;
-            var entry = CreateEntry();
-            while (await reader.ReadAsync())
-            {
-                if (!reader.IsStartElement())
+                if (reader.Name.Equals(TagForUrlSet))
                 {
-                    if (reader.Name.Equals(TagForUrlSet))
+                    if (entry.Location != null)
                     {
-                        if (entry.Location != null)
+                        var isWithinMaxCount = entryCount < EntryMaxCount;
+                        if (isWithinMaxCount)
                         {
-                            var isWithinMaxCount = entryCount < EntryMaxCount;
-                            if (isWithinMaxCount)
-                            {
-                                yield return entry;
-                            }
+                            yield return entry;
                         }
                     }
                 }
-                else
+            }
+            else
+            {
+                var isWithinMaxCount = true;
+                var name = reader.Name;
+                switch (name)
                 {
-                    var isWithinMaxCount = true;
-                    var name = reader.Name;
-                    switch (name)
-                    {
-                        case TagForUrl:
-                            if (entry.Location != null)
+                    case TagForUrl:
+                        if (entry.Location != null)
+                        {
+                            isWithinMaxCount = entryCount < EntryMaxCount;
+                            if (!isWithinMaxCount)
                             {
-                                isWithinMaxCount = entryCount < EntryMaxCount;
-                                if (!isWithinMaxCount)
-                                {
-                                    break;
-                                }
-
-                                yield return entry;
-                                entryCount++;
+                                break;
                             }
 
-                            entry = CreateEntry();
-                            break;
+                            yield return entry;
+                            entryCount++;
+                        }
 
-                        default:
-                            var value = await reader.ReadElementContentAsStringAsync();
-                            entry.Set(name, value);
-                            break;
-                    }
-
-                    if (!isWithinMaxCount)
-                    {
+                        entry = CreateEntry();
                         break;
-                    }
+
+                    default:
+                        var value = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
+                        entry.Set(name, value);
+                        break;
+                }
+
+                if (!isWithinMaxCount)
+                {
+                    break;
                 }
             }
         }
+    }
 
-        protected virtual SitemapEntry CreateEntry()
-        {
-            return new SitemapEntry(Location);
-        }
+    protected virtual SitemapEntry CreateEntry()
+    {
+        return new SitemapEntry(Location);
     }
 }

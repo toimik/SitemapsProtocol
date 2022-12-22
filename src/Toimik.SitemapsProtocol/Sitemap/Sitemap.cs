@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,116 +14,115 @@
  * limitations under the License.
  */
 
-namespace Toimik.SitemapsProtocol
+namespace Toimik.SitemapsProtocol;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Schema;
+
+public class Sitemap
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Schema;
+    private readonly ISet<SitemapEntry> entries = new HashSet<SitemapEntry>(new EntryComparer());
 
-    public class Sitemap
+    public Sitemap(SitemapParser parser)
     {
-        private readonly ISet<SitemapEntry> entries = new HashSet<SitemapEntry>(new EntryComparer());
+        Parser = parser;
+    }
 
-        public Sitemap(SitemapParser parser)
+    public Sitemap(Uri location, int entryMaxCount = SitemapParser.DefaultEntryMaxCount)
+        : this(new SitemapParser(location, entryMaxCount))
+    {
+    }
+
+    public IEnumerator<SitemapEntry> Entries => entries.GetEnumerator();
+
+    public int EntryCount => entries.Count;
+
+    public SitemapParser Parser { get; }
+
+    public bool AddEntry(SitemapEntry entry)
+    {
+        var isWithinMaxCount = entries.Count < Parser.EntryMaxCount;
+        var isAdded = isWithinMaxCount
+            && entries.Add(entry);
+        return isAdded;
+    }
+
+    /// <summary>
+    /// Loads, to this instance, the data of a sitemap from a <see cref="string"/>.
+    /// </summary>
+    /// <param name="data">
+    /// Data of a sitemap.
+    /// </param>
+    /// <param name="schemaStream">
+    /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
+    /// <c>null</c>, the default one is used.
+    /// </param>
+    /// <remarks>
+    /// All existing entries, if any, are cleared when this method is called.
+    /// </remarks>
+    public void Load(string data, Stream? schemaStream = null)
+    {
+        var byteArray = Encoding.UTF8.GetBytes(data);
+        using var dataStream = new MemoryStream(byteArray);
+        try
         {
-            Parser = parser;
+            Load(dataStream, schemaStream).Wait();
         }
-
-        public Sitemap(Uri location, int entryMaxCount = SitemapParser.DefaultEntryMaxCount)
-            : this(new SitemapParser(location, entryMaxCount))
+        catch (AggregateException ex)
         {
+            throw ex.InnerException!;
         }
+    }
 
-        public IEnumerator<SitemapEntry> Entries => entries.GetEnumerator();
-
-        public int EntryCount => entries.Count;
-
-        public SitemapParser Parser { get; }
-
-        public bool AddEntry(SitemapEntry entry)
+    /// <summary>
+    /// Loads, to this instance, the data of a sitemap from a <see cref="Stream"/>.
+    /// </summary>
+    /// <param name="dataStream">
+    /// A stream containing the data of a sitemap. This is left opened after processing.
+    /// </param>
+    /// <param name="schemaStream">
+    /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
+    /// <c>null</c>, the default one is used.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Task"/>.
+    /// </returns>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown when <paramref name="dataStream"/> is manually closed.
+    /// </exception>
+    /// <remarks>
+    /// All existing entries, if any, are cleared when this method is called.
+    /// <para>
+    /// Call <see cref="Stream.Close()"/> on <paramref name="dataStream"/> to cancel loading.
+    /// </para>
+    /// </remarks>
+    public async Task Load(Stream dataStream, Stream? schemaStream = null)
+    {
+        entries.Clear();
+        try
         {
-            var isWithinMaxCount = entries.Count < Parser.EntryMaxCount;
-            var isAdded = isWithinMaxCount
-                && entries.Add(entry);
-            return isAdded;
+            await DoLoad(dataStream, schemaStream).ConfigureAwait(false);
         }
-
-        /// <summary>
-        /// Loads, to this instance, the data of a sitemap from a <see cref="string"/>.
-        /// </summary>
-        /// <param name="data">
-        /// Data of a sitemap.
-        /// </param>
-        /// <param name="schemaStream">
-        /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
-        /// <c>null</c>, the default one is used.
-        /// </param>
-        /// <remarks>
-        /// All existing entries, if any, are cleared when this method is called.
-        /// </remarks>
-        public void Load(string data, Stream schemaStream = null)
+        catch (XmlException ex)
         {
-            var byteArray = Encoding.UTF8.GetBytes(data);
-            using var dataStream = new MemoryStream(byteArray);
-            try
-            {
-                Load(dataStream, schemaStream).Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            throw new ArgumentException(ex.Message);
         }
-
-        /// <summary>
-        /// Loads, to this instance, the data of a sitemap from a <see cref="Stream"/>.
-        /// </summary>
-        /// <param name="dataStream">
-        /// A stream containing the data of a sitemap. This is left opened after processing.
-        /// </param>
-        /// <param name="schemaStream">
-        /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
-        /// <c>null</c>, the default one is used.
-        /// </param>
-        /// <returns>
-        /// A <see cref="Task"/>.
-        /// </returns>
-        /// <exception cref="ObjectDisposedException">
-        /// Thrown when <paramref name="dataStream"/> is manually closed.
-        /// </exception>
-        /// <remarks>
-        /// All existing entries, if any, are cleared when this method is called.
-        /// <para>
-        /// Call <see cref="Stream.Close()"/> on <paramref name="dataStream"/> to cancel loading.
-        /// </para>
-        /// </remarks>
-        public async Task Load(Stream dataStream, Stream schemaStream = null)
+        catch (XmlSchemaValidationException ex)
         {
-            entries.Clear();
-            try
-            {
-                await DoLoad(dataStream, schemaStream);
-            }
-            catch (XmlException ex)
-            {
-                throw new ArgumentException(ex.Message);
-            }
-            catch (XmlSchemaValidationException ex)
-            {
-                throw new ArgumentException(ex.Message);
-            }
+            throw new ArgumentException(ex.Message);
         }
+    }
 
-        private async Task DoLoad(Stream dataStream, Stream schemaStream)
+    private async Task DoLoad(Stream dataStream, Stream? schemaStream)
+    {
+        await foreach (SitemapEntry entry in Parser.Parse(dataStream, schemaStream).ConfigureAwait(false))
         {
-            await foreach (SitemapEntry entry in Parser.Parse(dataStream, schemaStream))
-            {
-                AddEntry(entry);
-            }
+            AddEntry(entry);
         }
     }
 }

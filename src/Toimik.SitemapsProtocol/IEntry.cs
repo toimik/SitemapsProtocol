@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-namespace Toimik.SitemapsProtocol
+namespace Toimik.SitemapsProtocol;
+
+public interface IEntry
 {
-    public interface IEntry
-    {
-        public string Location { get; }
-    }
+    string? Location { get; }
 }

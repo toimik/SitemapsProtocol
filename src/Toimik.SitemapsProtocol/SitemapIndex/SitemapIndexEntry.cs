@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,45 @@
  * limitations under the License.
  */
 
-namespace Toimik.SitemapsProtocol
+namespace Toimik.SitemapsProtocol;
+
+using System;
+
+public class SitemapIndexEntry : IEntry
 {
-    using System;
+    private const string TagForLastModified = "lastmod";
 
-    public class SitemapIndexEntry : IEntry
+    private const string TagForLocation = "loc";
+
+    public SitemapIndexEntry(string baseLocation)
     {
-        private const string TagForLastModified = "lastmod";
+        BaseLocation = baseLocation;
+    }
 
-        private const string TagForLocation = "loc";
+    public string BaseLocation { get; }
 
-        public SitemapIndexEntry(string baseLocation)
+    public DateTime? LastModified { get; internal set; }
+
+    public string? Location { get; internal set; }
+
+    internal virtual void Set(string name, string value)
+    {
+        switch (name)
         {
-            BaseLocation = baseLocation;
-        }
+            case TagForLastModified:
+                LastModified = DateTime.Parse(value);
+                break;
 
-        public string BaseLocation { get; }
-
-        public DateTime? LastModified { get; internal set; }
-
-        public string Location { get; internal set; }
-
-        internal virtual void Set(string name, string value)
-        {
-            switch (name)
-            {
-                case TagForLastModified:
-                    LastModified = DateTime.Parse(value);
+            case TagForLocation:
+                var location = Utils.NormalizeLocation(new Uri(value.Trim()));
+                if (location.Equals(BaseLocation, StringComparison.OrdinalIgnoreCase)
+                    || !location.StartsWith(BaseLocation, StringComparison.OrdinalIgnoreCase))
+                {
                     break;
+                }
 
-                case TagForLocation:
-                    var location = Utils.NormalizeLocation(new Uri(value.Trim()));
-                    if (location.Equals(BaseLocation, StringComparison.OrdinalIgnoreCase)
-                        || !location.StartsWith(BaseLocation, StringComparison.OrdinalIgnoreCase))
-                    {
-                        break;
-                    }
-
-                    Location = location;
-                    break;
-            }
+                Location = location;
+                break;
         }
     }
 }

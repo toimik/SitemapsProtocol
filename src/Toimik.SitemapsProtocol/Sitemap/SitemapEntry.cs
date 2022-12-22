@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,63 +14,62 @@
  * limitations under the License.
  */
 
-namespace Toimik.SitemapsProtocol
+namespace Toimik.SitemapsProtocol;
+
+using System;
+
+public class SitemapEntry : IEntry
 {
-    using System;
+    private const string TagForChangeFrequency = "changefreq";
 
-    public class SitemapEntry : IEntry
+    private const string TagForLastModified = "lastmod";
+
+    private const string TagForLocation = "loc";
+
+    private const string TagForPriority = "priority";
+
+    public SitemapEntry(string baseLocation)
     {
-        private const string TagForChangeFrequency = "changefreq";
+        BaseLocation = baseLocation;
+    }
 
-        private const string TagForLastModified = "lastmod";
+    public string BaseLocation { get; }
 
-        private const string TagForLocation = "loc";
+    public ChangeFrequency? ChangeFrequency { get; private set; }
 
-        private const string TagForPriority = "priority";
+    public DateTime? LastModified { get; private set; }
 
-        public SitemapEntry(string baseLocation)
+    public string? Location { get; private set; }
+
+    public double? Priority { get; private set; }
+
+    internal virtual void Set(string name, string value)
+    {
+        switch (name)
         {
-            BaseLocation = baseLocation;
-        }
+            case TagForChangeFrequency:
+                ChangeFrequency = (ChangeFrequency)Enum.Parse(typeof(ChangeFrequency), value, ignoreCase: true);
+                break;
 
-        public string BaseLocation { get; }
+            case TagForLastModified:
+                LastModified = DateTime.Parse(value);
+                break;
 
-        public ChangeFrequency? ChangeFrequency { get; private set; }
-
-        public DateTime? LastModified { get; private set; }
-
-        public string Location { get; private set; }
-
-        public double? Priority { get; private set; }
-
-        internal virtual void Set(string name, string value)
-        {
-            switch (name)
-            {
-                case TagForChangeFrequency:
-                    ChangeFrequency = (ChangeFrequency)Enum.Parse(typeof(ChangeFrequency), value, ignoreCase: true);
+            case TagForLocation:
+                var location = Utils.NormalizeLocation(new Uri(value.Trim()));
+                var root = BaseLocation.ToString();
+                if (location.Equals(root, StringComparison.OrdinalIgnoreCase)
+                    || !location.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                {
                     break;
+                }
 
-                case TagForLastModified:
-                    LastModified = DateTime.Parse(value);
-                    break;
+                Location = location;
+                break;
 
-                case TagForLocation:
-                    var location = Utils.NormalizeLocation(new Uri(value.Trim()));
-                    var root = BaseLocation.ToString();
-                    if (location.Equals(root, StringComparison.OrdinalIgnoreCase)
-                        || !location.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                    {
-                        break;
-                    }
-
-                    Location = location;
-                    break;
-
-                case TagForPriority:
-                    Priority = double.Parse(value);
-                    break;
-            }
+            case TagForPriority:
+                Priority = double.Parse(value);
+                break;
         }
     }
 }

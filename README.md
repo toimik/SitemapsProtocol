@@ -1,10 +1,9 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/toimik/SitemapsProtocol/CI)
 ![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nurhafiz/8b8e2599175b077c2ffede14a92b8d75/raw/SitemapsProtocol-coverage.json)
 ![Nuget](https://img.shields.io/nuget/v/Toimik.SitemapsProtocol)
 
 # Toimik.SitemapsProtocol
 
-.NET 5 C# [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) parser and Sitemap Index parser.
+.NET 6 C# [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) parser and Sitemap Index parser.
 
 ## Quick Start
 
