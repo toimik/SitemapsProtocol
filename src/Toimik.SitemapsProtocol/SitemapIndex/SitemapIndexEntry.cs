@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,13 @@ namespace Toimik.SitemapsProtocol;
 
 using System;
 
-public class SitemapIndexEntry : IEntry
+public class SitemapIndexEntry(string baseLocation) : IEntry
 {
     private const string TagForLastModified = "lastmod";
 
     private const string TagForLocation = "loc";
 
-    public SitemapIndexEntry(string baseLocation)
-    {
-        BaseLocation = baseLocation;
-    }
-
-    public string BaseLocation { get; }
+    public string BaseLocation { get; } = baseLocation;
 
     public DateTime? LastModified { get; internal set; }
 

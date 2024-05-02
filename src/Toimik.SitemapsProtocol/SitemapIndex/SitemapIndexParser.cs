@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Schema;
 
-public class SitemapIndexParser
+public class SitemapIndexParser(Uri location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
 {
     // As per standard
     internal const int DefaultEntryMaxCount = 50000;
@@ -38,15 +38,9 @@ public class SitemapIndexParser
         SchemaSet = Utils.CreateSchemaSet($"{typeof(SitemapIndex).Namespace}.Resources.siteindex.xsd");
     }
 
-    public SitemapIndexParser(Uri location, int entryMaxCount = DefaultEntryMaxCount)
-    {
-        Location = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
-        EntryMaxCount = entryMaxCount;
-    }
+    public int EntryMaxCount { get; } = entryMaxCount;
 
-    public int EntryMaxCount { get; }
-
-    public string Location { get; }
+    public string Location { get; } = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
 
     public async IAsyncEnumerable<SitemapIndexEntry> Parse(Stream dataStream, Stream? schemaStream = null)
     {

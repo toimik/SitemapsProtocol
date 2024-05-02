@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-public class SitemapIndex
+public class SitemapIndex(SitemapIndexParser parser)
 {
     private readonly ISet<SitemapIndexEntry> entries = new HashSet<SitemapIndexEntry>(new EntryComparer());
-
-    public SitemapIndex(SitemapIndexParser parser)
-    {
-        Parser = parser;
-    }
 
     public SitemapIndex(Uri location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
         : this(new SitemapIndexParser(location, entryMaxCount))
@@ -42,7 +37,7 @@ public class SitemapIndex
 
     public int EntryCount => entries.Count;
 
-    public SitemapIndexParser Parser { get; }
+    public SitemapIndexParser Parser { get; } = parser;
 
     public bool AddEntry(SitemapIndexEntry entry)
     {
@@ -55,16 +50,12 @@ public class SitemapIndex
     /// <summary>
     /// Loads, to this instance, the data of a sitemap index from a <see cref="string"/>.
     /// </summary>
-    /// <param name="data">
-    /// Data of a sitemap index.
-    /// </param>
+    /// <param name="data">Data of a sitemap index.</param>
     /// <param name="schemaStream">
     /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
     /// <c>null</c>, the default one is used.
     /// </param>
-    /// <remarks>
-    /// All existing entries, if any, are cleared when this method is called.
-    /// </remarks>
+    /// <remarks>All existing entries, if any, are cleared when this method is called.</remarks>
     public void Load(string data, Stream? schemaStream = null)
     {
         var byteArray = Encoding.UTF8.GetBytes(data);
@@ -89,12 +80,8 @@ public class SitemapIndex
     /// <see cref="Stream"/> of schema, which is used to validate the sitemap index against. If
     /// <c>null</c>, the default one is used.
     /// </param>
-    /// <returns>
-    /// A <see cref="Task"/>.
-    /// </returns>
-    /// <remarks>
-    /// All existing entries, if any, are cleared when this method is called.
-    /// </remarks>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <remarks>All existing entries, if any, are cleared when this method is called.</remarks>
     public async Task Load(Stream dataStream, Stream? schemaStream = null)
     {
         entries.Clear();

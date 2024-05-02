@@ -357,13 +357,8 @@ public class SitemapTest
         return entry;
     }
 
-    private class ExtendedSitemapEntry : SitemapEntry
+    private class ExtendedSitemapEntry(string locationPrefix) : SitemapEntry(locationPrefix)
     {
-        public ExtendedSitemapEntry(string locationPrefix)
-            : base(locationPrefix)
-        {
-        }
-
         public string? Title { get; internal set; }
 
         internal override void Set(string name, string value)
@@ -379,13 +374,8 @@ public class SitemapTest
         }
     }
 
-    private class ExtendedSitemapParser : SitemapParser
+    private class ExtendedSitemapParser(Uri location) : SitemapParser(location)
     {
-        public ExtendedSitemapParser(Uri location)
-            : base(location)
-        {
-        }
-
         protected override SitemapEntry CreateEntry()
         {
             return new ExtendedSitemapEntry(Location);
