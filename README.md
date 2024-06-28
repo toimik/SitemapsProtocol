@@ -49,7 +49,7 @@ await sitemap.Load(stream);
 
 var entries = sitemap.Entries;
 
-Console.WriteLine($"{entries.EntryCount} entries parsed:");
+Console.WriteLine($"{sitemap.EntryCount} entries parsed:");
 
 // Enumerate the sitemap entries
 while (entries.MoveNext())
