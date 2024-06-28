@@ -52,9 +52,8 @@ public class SitemapEntry(string baseLocation) : IEntry
 
             case TagForLocation:
                 var location = Utils.NormalizeLocation(new Uri(value.Trim()));
-                var root = BaseLocation.ToString();
-                if (location.Equals(root, StringComparison.OrdinalIgnoreCase)
-                    || !location.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                if (location.Equals(BaseLocation, StringComparison.OrdinalIgnoreCase)
+                    || !location.StartsWith(BaseLocation, StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
