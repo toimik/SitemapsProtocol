@@ -54,7 +54,7 @@ public class SitemapIndexParser(Uri location, int entryMaxCount = SitemapIndexPa
             : Utils.CreateSchemaSet(schemaStream);
         settings.ValidationType = ValidationType.Schema;
         var reader = XmlReader.Create(inner, settings);
-        reader.MoveToContent();
+        await reader.MoveToContentAsync();
         Utils.ValidateNamespace(reader);
         var entryCount = 0;
         var entry = CreateEntry();
