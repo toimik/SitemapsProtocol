@@ -30,7 +30,7 @@ public class SitemapIndexEntry(string baseLocation) : IEntry
 
     public string? Location { get; internal set; }
 
-    internal virtual void Set(string name, string value)
+    protected internal virtual void Set(string name, string value)
     {
         switch (name)
         {

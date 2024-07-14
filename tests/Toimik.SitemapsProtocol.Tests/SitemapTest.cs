@@ -361,7 +361,7 @@ public class SitemapTest
     {
         public string? Title { get; internal set; }
 
-        internal override void Set(string name, string value)
+        protected internal override void Set(string name, string value)
         {
             if (name.Equals("example:title"))
             {
