@@ -44,6 +44,7 @@ public class SitemapIndex(SitemapIndexParser parser)
         var isWithinMaxCount = entries.Count < Parser.EntryMaxCount;
         var isAdded = isWithinMaxCount
             && entries.Add(entry);
+
         return isAdded;
     }
 
@@ -60,6 +61,7 @@ public class SitemapIndex(SitemapIndexParser parser)
     {
         var byteArray = Encoding.UTF8.GetBytes(data);
         using var dataStream = new MemoryStream(byteArray);
+
         try
         {
             Load(dataStream, schemaStream).Wait();
@@ -85,6 +87,7 @@ public class SitemapIndex(SitemapIndexParser parser)
     public async Task Load(Stream dataStream, Stream? schemaStream = null)
     {
         entries.Clear();
+
         try
         {
             await DoLoad(dataStream, schemaStream).ConfigureAwait(false);

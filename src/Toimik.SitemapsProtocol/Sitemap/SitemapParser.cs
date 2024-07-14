@@ -48,6 +48,7 @@ public class SitemapParser(Uri location, int entryMaxCount = SitemapParser.Defau
         {
             Async = true,
         };
+
         var inner = XmlReader.Create(dataStream, settings);
         settings.Schemas = schemaStream == null
             ? SchemaSet
@@ -62,16 +63,11 @@ public class SitemapParser(Uri location, int entryMaxCount = SitemapParser.Defau
         {
             if (!reader.IsStartElement())
             {
-                if (reader.Name.Equals(TagForUrlSet))
+                if (reader.Name.Equals(TagForUrlSet)
+                    && entry.Location != null
+                        && entryCount < EntryMaxCount)
                 {
-                    if (entry.Location != null)
-                    {
-                        var isWithinMaxCount = entryCount < EntryMaxCount;
-                        if (isWithinMaxCount)
-                        {
-                            yield return entry;
-                        }
-                    }
+                    yield return entry;
                 }
             }
             else
@@ -110,8 +106,5 @@ public class SitemapParser(Uri location, int entryMaxCount = SitemapParser.Defau
         }
     }
 
-    protected virtual SitemapEntry CreateEntry()
-    {
-        return new SitemapEntry(Location);
-    }
+    protected virtual SitemapEntry CreateEntry() => new(Location);
 }

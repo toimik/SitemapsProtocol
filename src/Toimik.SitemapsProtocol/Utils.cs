@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,18 +28,15 @@ public static class Utils
 {
     // NOTE: The return type is a string instead of a Uri because using the latter causes the
     // default port to be removed
-    public static string NormalizeLocation(Uri location)
-    {
-        // The standard has deprecated username:password in URL. It is removed, if present.
-        var temp = $"{location.Scheme}://{location.Authority}:{location.Port}{location.PathAndQuery}";
-        return temp;
-    }
+    public static string NormalizeLocation(Uri location) // The standard has deprecated username:password in URL. It is removed, if present.
+        => $"{location.Scheme}://{location.Authority}:{location.Port}{location.PathAndQuery}";
 
     internal static XmlSchemaSet CreateSchemaSet(string schema)
     {
         var assembly = Assembly.GetExecutingAssembly();
         using var stream = assembly.GetManifestResourceStream(schema);
         var schemaSet = CreateSchemaSet(stream!);
+
         return schemaSet;
     }
 
@@ -50,9 +47,11 @@ public static class Utils
         {
             CloseInput = true,
         };
+
         using var reader = XmlReader.Create(stream, settings);
         schemaSet.Add(null, reader);
         schemaSet.Compile();
+
         return schemaSet;
     }
 
