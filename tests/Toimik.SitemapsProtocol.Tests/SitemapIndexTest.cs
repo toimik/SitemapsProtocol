@@ -14,13 +14,14 @@ public class SitemapIndexTest
         var index = new SitemapIndex(Location);
         var expectedLocation = new Uri($"{Location}/sitemap-index.xml.gz");
         var expectedLastModified = "2005-01-01";
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{expectedLocation}</loc>
-                        <lastmod>{expectedLastModified}</lastmod>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{expectedLocation}</loc>
+                    <lastmod>{expectedLastModified}</lastmod>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 
@@ -34,15 +35,16 @@ public class SitemapIndexTest
     public void DuplicateLocation()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 
@@ -63,21 +65,22 @@ public class SitemapIndexTest
     public void EntryMaxCount()
     {
         var index = new SitemapIndex(Location, entryMaxCount: 2);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                    <sitemap>
-                        <loc>{Location}/sitemap2.xml.gz</loc>
-                    </sitemap>
-                    <sitemap>
-                        <loc>{Location}/sitemap3.xml.gz</loc>
-                    </sitemap>
-                    <sitemap>
-                        <loc>{Location}/sitemap4.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+                <sitemap>
+                    <loc>{Location}/sitemap2.xml.gz</loc>
+                </sitemap>
+                <sitemap>
+                    <loc>{Location}/sitemap3.xml.gz</loc>
+                </sitemap>
+                <sitemap>
+                    <loc>{Location}/sitemap4.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 
@@ -88,13 +91,14 @@ public class SitemapIndexTest
     public void InvalidLastModified()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <lastmod>invalid</lastmod>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <lastmod>invalid</lastmod>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -103,12 +107,13 @@ public class SitemapIndexTest
     public void InvalidLocation()
     {
         var index = new SitemapIndex(Location);
-        var data = @"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>invalid</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = """
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>invalid</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -117,12 +122,13 @@ public class SitemapIndexTest
     public void InvalidRootTag()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <invalid xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </invalid>".TrimStart();
+        var data = $"""
+            <invalid xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </invalid>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -131,12 +137,13 @@ public class SitemapIndexTest
     public void InvalidUrlTag()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <invalid>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </invalid>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <invalid>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </invalid>
+            </sitemapindex>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -145,25 +152,27 @@ public class SitemapIndexTest
     public void LoadStartsAfresh()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                    <sitemap>
-                        <loc>{Location}/sitemap2.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+                <sitemap>
+                    <loc>{Location}/sitemap2.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
         index.Load(data);
         var location = new Uri($"{Location}/sitemap3.xml");
-        data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{location}</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{location}</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
         index.Load(data);
 
         var entries = index.Entries;
@@ -185,12 +194,13 @@ public class SitemapIndexTest
     public void LocationValidity(string location, bool isEqual)
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{location}</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{location}</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 
@@ -201,7 +211,7 @@ public class SitemapIndexTest
     public void MissingAllFields()
     {
         var index = new SitemapIndex(Location);
-        var data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        var data = """<?xml version="1.0" encoding="UTF-8"?>""";
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -210,12 +220,13 @@ public class SitemapIndexTest
     public void MissingDeclaration()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 
@@ -226,12 +237,13 @@ public class SitemapIndexTest
     public void MissingNamespace()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex>
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex>
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -240,13 +252,14 @@ public class SitemapIndexTest
     public void MultipleInstantiations()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
         index.Load(data);
         index = new(Location);
         index.Load(data);
@@ -258,13 +271,14 @@ public class SitemapIndexTest
     public void NonUtf8Encoding()
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-16""?>
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{Location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-16"?>
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{Location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         Assert.Throws<ArgumentException>(() => index.Load(data));
     }
@@ -276,12 +290,13 @@ public class SitemapIndexTest
     public void SupersetLocation(string location)
     {
         var index = new SitemapIndex(Location);
-        var data = @$"
-                <sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <sitemap>
-                        <loc>{location}/sitemap-index.xml.gz</loc>
-                    </sitemap>
-                </sitemapindex>".TrimStart();
+        var data = $"""
+            <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <sitemap>
+                    <loc>{location}/sitemap-index.xml.gz</loc>
+                </sitemap>
+            </sitemapindex>
+            """;
 
         index.Load(data);
 

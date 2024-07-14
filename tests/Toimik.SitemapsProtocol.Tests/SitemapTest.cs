@@ -17,15 +17,16 @@ public class SitemapTest
         var expectedLastModified = "2005-01-01";
         const ChangeFrequency ExpectedChangeFrequency = ChangeFrequency.Monthly;
         const double ExpectedPriority = 0.8;
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{expectedLocation}</loc>
-                        <lastmod>{expectedLastModified}</lastmod>
-                        <changefreq>{ExpectedChangeFrequency.ToString().ToLower()}</changefreq>
-                        <priority>{ExpectedPriority}</priority>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{expectedLocation}</loc>
+                    <lastmod>{expectedLastModified}</lastmod>
+                    <changefreq>{ExpectedChangeFrequency.ToString().ToLower()}</changefreq>
+                    <priority>{ExpectedPriority}</priority>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
@@ -43,16 +44,17 @@ public class SitemapTest
         var parser = new ExtendedSitemapParser(Location);
         var sitemap = new Sitemap(parser);
         const string ExpectedValue = "foobar";
-        var data = @$"
-                <?xml version='1.0' encoding='UTF-8'?>
-                <urlset
-                    xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9""
-                    xmlns:example=""http://www.example.com/schemas/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                        <example:title>{ExpectedValue}</example:title>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <urlset
+                xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+                xmlns:example="http://www.example.com/schemas/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                    <example:title>{ExpectedValue}</example:title>
+                </url>
+            </urlset>
+            """;
         using var stream = File.OpenRead(@$"Resources{Path.DirectorySeparatorChar}example.xsd");
         sitemap.Load(data, stream);
 
@@ -65,16 +67,17 @@ public class SitemapTest
     public void DuplicateLocation()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                        <priority>0</priority>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                    <priority>0</priority>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
@@ -95,21 +98,22 @@ public class SitemapTest
     public void EntryMaxCount()
     {
         var sitemap = new Sitemap(Location, entryMaxCount: 2);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                    <url>
-                        <loc>{Location}/sitemap2.xml</loc>
-                    </url>
-                    <url>
-                        <loc>{Location}/sitemap3.xml</loc>
-                    </url>
-                    <url>
-                        <loc>{Location}/sitemap4.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+                <url>
+                    <loc>{Location}/sitemap2.xml</loc>
+                </url>
+                <url>
+                    <loc>{Location}/sitemap3.xml</loc>
+                </url>
+                <url>
+                    <loc>{Location}/sitemap4.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
@@ -120,13 +124,14 @@ public class SitemapTest
     public void InvalidChangeFrequency()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <changefreq>invalid</changefreq>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <changefreq>invalid</changefreq>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -135,13 +140,14 @@ public class SitemapTest
     public void InvalidLastModified()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <lastmod>invalid</lastmod>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <lastmod>invalid</lastmod>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -150,12 +156,13 @@ public class SitemapTest
     public void InvalidLocation()
     {
         var sitemap = new Sitemap(Location);
-        var data = @"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>invalid</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>invalid</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -164,13 +171,14 @@ public class SitemapTest
     public void InvalidPriority()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <priority>invalid</priority>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <priority>invalid</priority>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -179,12 +187,13 @@ public class SitemapTest
     public void InvalidRootTag()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <invalid xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </invalid>".TrimStart();
+        var data = $"""
+            <invalid xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </invalid>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -193,12 +202,13 @@ public class SitemapTest
     public void InvalidUrlTag()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <invalid>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </invalid>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <invalid>
+                    <loc>{Location}/sitemap.xml</loc>
+                </invalid>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -207,25 +217,27 @@ public class SitemapTest
     public void LoadStartsAfresh()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                    <url>
-                        <loc>{Location}/sitemap2.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+                <url>
+                    <loc>{Location}/sitemap2.xml</loc>
+                </url>
+            </urlset>
+            """;
         sitemap.Load(data);
         var location = new Uri($"{Location}/sitemap3.xml");
-        data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{location}</loc>
-                    </url>
-                </urlset>".TrimStart();
+        data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{location}</loc>
+                </url>
+            </urlset>
+            """;
         sitemap.Load(data);
 
         var entries = sitemap.Entries;
@@ -247,12 +259,13 @@ public class SitemapTest
     public void LocationValidity(string location, bool isEqual)
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{location}</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{location}</loc>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
@@ -263,7 +276,7 @@ public class SitemapTest
     public void MissingAllFields()
     {
         var sitemap = new Sitemap(Location);
-        var data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        var data = """<?xml version="1.0" encoding="UTF-8"?>""";
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -272,12 +285,13 @@ public class SitemapTest
     public void MissingDeclaration()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
@@ -288,12 +302,13 @@ public class SitemapTest
     public void MissingNamespace()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset>
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset>
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -302,13 +317,14 @@ public class SitemapTest
     public void MultipleInstantiations()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-8""?>
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
         sitemap.Load(data);
         sitemap = new(Location);
         sitemap.Load(data);
@@ -320,13 +336,14 @@ public class SitemapTest
     public void NonUtf8Encoding()
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <?xml version=""1.0"" encoding=""UTF-16""?>
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{Location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <?xml version="1.0" encoding="UTF-16"?>
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{Location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         Assert.Throws<ArgumentException>(() => sitemap.Load(data));
     }
@@ -338,12 +355,13 @@ public class SitemapTest
     public void SupersetLocation(string location)
     {
         var sitemap = new Sitemap(Location);
-        var data = @$"
-                <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-                    <url>
-                        <loc>{location}/sitemap.xml</loc>
-                    </url>
-                </urlset>".TrimStart();
+        var data = $"""
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                <url>
+                    <loc>{location}/sitemap.xml</loc>
+                </url>
+            </urlset>
+            """;
 
         sitemap.Load(data);
 
