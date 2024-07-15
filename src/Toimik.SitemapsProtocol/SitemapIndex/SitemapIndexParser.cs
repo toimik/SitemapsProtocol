@@ -17,94 +17,20 @@
 namespace Toimik.SitemapsProtocol;
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml;
-using System.Xml.Schema;
 
-public class SitemapIndexParser(Uri location, int entryMaxCount = SitemapIndexParser.DefaultEntryMaxCount)
+public class SitemapIndexParser(
+    Uri location,
+    SitemapIndexEntryFactory? sitemapIndexEntryFactory = null,
+    int entryMaxCount = Parser.DefaultEntryMaxCount,
+    string tagNameForRoot = "sitemapindex",
+    string tagNameForEntry = "sitemap",
+    string schemaLocation = "Resources.siteindex.xsd")
+    : Parser(
+        location,
+        tagNameForRoot,
+        tagNameForEntry,
+        schemaLocation,
+        sitemapIndexEntryFactory ?? new SitemapIndexEntryFactory(),
+        entryMaxCount)
 {
-    // As per standard
-    internal const int DefaultEntryMaxCount = 50000;
-
-    private const string TagForSitemap = "sitemap";
-
-    private const string TagForSitemapIndex = "sitemapindex";
-
-    private static readonly XmlSchemaSet SchemaSet;
-
-    static SitemapIndexParser()
-    {
-        SchemaSet = Utils.CreateSchemaSet($"{typeof(SitemapIndex).Namespace}.Resources.siteindex.xsd");
-    }
-
-    public int EntryMaxCount { get; } = entryMaxCount;
-
-    public string Location { get; } = Utils.NormalizeLocation(location) ?? throw new ArgumentException($"{nameof(location)} is not in a valid format.");
-
-    public async IAsyncEnumerable<SitemapIndexEntry> Parse(Stream dataStream, Stream? schemaStream = null)
-    {
-        var settings = new XmlReaderSettings
-        {
-            Async = true,
-        };
-
-        var inner = XmlReader.Create(dataStream, settings);
-        settings.Schemas = schemaStream == null
-            ? SchemaSet
-            : Utils.CreateSchemaSet(schemaStream);
-        settings.ValidationType = ValidationType.Schema;
-        var reader = XmlReader.Create(inner, settings);
-        await reader.MoveToContentAsync();
-        Utils.ValidateNamespace(reader);
-        var entryCount = 0;
-        var entry = CreateEntry();
-        while (await reader.ReadAsync().ConfigureAwait(false))
-        {
-            if (!reader.IsStartElement())
-            {
-                if (reader.Name.Equals(TagForSitemapIndex)
-                    && entry.Location != null
-                        && entryCount < EntryMaxCount)
-                {
-                    yield return entry;
-                }
-            }
-            else
-            {
-                var isWithinMaxCount = true;
-                var name = reader.Name;
-                switch (name)
-                {
-                    case TagForSitemap:
-                        if (entry.Location != null)
-                        {
-                            isWithinMaxCount = entryCount < EntryMaxCount;
-                            if (!isWithinMaxCount)
-                            {
-                                break;
-                            }
-
-                            yield return entry;
-                            entryCount++;
-                        }
-
-                        entry = CreateEntry();
-                        break;
-
-                    default:
-                        var value = await reader.ReadElementContentAsStringAsync().ConfigureAwait(false);
-                        entry.Set(name, value);
-                        break;
-                }
-
-                if (!isWithinMaxCount)
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    protected virtual SitemapIndexEntry CreateEntry() => new(Location);
 }

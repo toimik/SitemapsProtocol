@@ -24,12 +24,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-public class Sitemap(SitemapParser parser)
+public class Sitemap(Parser parser)
 {
     private readonly ISet<SitemapEntry> entries = new HashSet<SitemapEntry>(new EntryComparer());
 
-    public Sitemap(Uri location, int entryMaxCount = SitemapParser.DefaultEntryMaxCount)
-        : this(new SitemapParser(location, entryMaxCount))
+    public Sitemap(Uri location, int entryMaxCount = Parser.DefaultEntryMaxCount)
+         : this(new SitemapParser(location, entryMaxCount: entryMaxCount))
     {
     }
 
@@ -37,7 +37,7 @@ public class Sitemap(SitemapParser parser)
 
     public int EntryCount => entries.Count;
 
-    public SitemapParser Parser { get; } = parser;
+    public Parser Parser { get; } = parser;
 
     public bool AddEntry(SitemapEntry entry)
     {

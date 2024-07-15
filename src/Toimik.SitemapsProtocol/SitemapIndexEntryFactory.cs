@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 namespace Toimik.SitemapsProtocol;
 
-public interface IEntry
+public class SitemapIndexEntryFactory : IEntryFactory
 {
-    string? Location { get; }
-
-    void Set(string name, string value);
+    public virtual IEntry Create(string location) => new SitemapIndexEntry(location);
 }

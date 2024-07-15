@@ -38,7 +38,7 @@ public class SitemapEntry(string baseLocation) : IEntry
 
     public double? Priority { get; private set; }
 
-    protected internal virtual void Set(string name, string value)
+    public virtual void Set(string name, string value)
     {
         switch (name)
         {

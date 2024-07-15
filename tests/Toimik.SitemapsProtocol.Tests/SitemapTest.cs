@@ -379,7 +379,7 @@ public class SitemapTest
     {
         public string? Title { get; internal set; }
 
-        protected internal override void Set(string name, string value)
+        public override void Set(string name, string value)
         {
             if (name.Equals("example:title"))
             {
@@ -392,11 +392,13 @@ public class SitemapTest
         }
     }
 
-    private class ExtendedSitemapParser(Uri location) : SitemapParser(location)
+    private class ExtendedSitemapEntryFactory : SitemapEntryFactory
     {
-        protected override SitemapEntry CreateEntry()
-        {
-            return new ExtendedSitemapEntry(Location);
-        }
+        public override IEntry Create(string location) => new ExtendedSitemapEntry(location);
+    }
+
+    private class ExtendedSitemapParser(Uri location)
+        : SitemapParser(location, sitemapEntryFactory: new ExtendedSitemapEntryFactory())
+    {
     }
 }
