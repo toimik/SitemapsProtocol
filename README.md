@@ -3,7 +3,7 @@
 
 # Toimik.SitemapsProtocol
 
-.NET 8 C# [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) parser and Sitemap Index parser.
+.NET 10 C# [Sitemap](https://en.wikipedia.org/wiki/Sitemaps) parser and Sitemap Index parser.
 
 ## Quick Start
 
